@@ -54,50 +54,11 @@ Strophe.addConnectionPlugin('roster',
          */
         var ver = null;
 
-        // Override the connect and attach methods to always add presence and roster handlers.
+        // add presence and roster handlers.
         // They are removed when the connection disconnects, so must be added on connection.
-        var oldCallback, roster = this, _connect = conn.connect, _attach = conn.attach;
-        var newCallback = function(status)
-        {
-            if (status == Strophe.Status.ATTACHED || status == Strophe.Status.CONNECTED)
-            {
-                try
-                {
-                    // Presence subscription
-                    conn.addHandler(roster._onReceivePresence.bind(roster), null, 'presence', null, null, null);
-                    conn.addHandler(roster._onReceiveIQ.bind(roster), Strophe.NS.ROSTER, 'iq', "set", null, null);
-                }
-                catch (e)
-                {
-                    Strophe.error(e);
-                }
-            }
-            if (typeof oldCallback === "function") {
-                oldCallback.apply(this, arguments);
-            }
-        };
-        conn.connect = function(jid, pass, callback, wait, hold, route, authcid)
-        {
-            oldCallback = callback;
-            if (typeof jid  == "undefined")
-                jid  = null;
-            if (typeof pass == "undefined")
-                pass = null;
-            callback = newCallback;
-            _connect.apply(conn, [jid, pass, callback, wait, hold, route, authcid]);
-        };
-        conn.attach = function(jid, sid, rid, callback, wait, hold, wind)
-        {
-            oldCallback = callback;
-            if (typeof jid == "undefined")
-                jid = null;
-            if (typeof sid == "undefined")
-                sid = null;
-            if (typeof rid == "undefined")
-                rid = null;
-            callback = newCallback;
-            _attach.apply(conn, [jid, sid, rid, callback, wait, hold, wind]);
-        };
+        var roster = this;
+        conn.addHandler(roster._onReceivePresence.bind(roster), null, 'presence', null, null, null);
+        conn.addHandler(roster._onReceiveIQ.bind(roster), Strophe.NS.ROSTER, 'iq', "set", null, null);
 
         Strophe.addNamespace('ROSTER_VER', 'urn:xmpp:features:rosterver');
         Strophe.addNamespace('NICK', 'http://jabber.org/protocol/nick');
@@ -161,7 +122,7 @@ Strophe.addConnectionPlugin('roster',
     findItem : function(jid)
     {
         if(this.items)
-	{
+    {
           for (var i = 0; i < this.items.length; i++)
           {
               if (this.items[i] && this.items[i].jid == jid)
@@ -169,7 +130,7 @@ Strophe.addConnectionPlugin('roster',
                   return this.items[i];
               }
           }
-	}
+    }
         return false;
     },
     /** Function: removeItem
